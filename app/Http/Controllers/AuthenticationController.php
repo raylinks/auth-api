@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 class AuthenticationController extends Controller
 {
@@ -23,5 +21,29 @@ class AuthenticationController extends Controller
             'password' => $request->password
         ]);
          return $this->okResponse("Registration successful", $response);
+    }
+
+    public function login()
+    {
+
+        $cred = $request->only(['email', 'password']);
+
+        if (!$token = JWTAuth::attempt($cred)) {
+            return $this->notFoundAlert(
+                'incorrect login details');
+
+        }else {
+            $user = auth()->user()->load('userDetails');
+            $auth_user = Auth::user()->load('roles');
+
+            if (is_null($user->email_verified_at)) {
+                return $this->badRequestAlert(
+                    'You are yet to verify your email address');
+            }
+            return JSON(200, [
+                $token,
+               $auth_user
+            ]);
+        }
     }
 }
