@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class AuthenticationController extends Controller
 {
-    public function register(Request $request): JsonResponse
+    public function register(Request $request)
     {
        // dd("i ");
 //        $request->validate([
@@ -19,32 +20,26 @@ class AuthenticationController extends Controller
         $response = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password
+            'password' => Hash::make($request->password)
         ]);
+
          return $this->okResponse("Registration successful", $response);
     }
 
-    public function login()
+    public function login(Request $request)
     {
-
         $cred = $request->only(['email', 'password']);
 
-        if (!$token = JWTAuth::attempt($cred)) {
-            return $this->notFoundAlert(
-                'incorrect login details');
-
-        }else {
-            $user = auth()->user()->load('userDetails');
-            $auth_user = Auth::user()->load('roles');
-
-            if (is_null($user->email_verified_at)) {
-                return $this->badRequestAlert(
-                    'You are yet to verify your email address');
-            }
-            return JSON(200, [
-                $token,
-               $auth_user
-            ]);
+        $user = User::where('email', $request->email)->first();
+        if(!$user ||  !Hash::check($request->password, $user->password)){
+            return $this->notFoundResponse("The credentials do not match our record ", $user);
         }
+        $token  = $user->createToken('my-app-token')->plainTextToken;
+
+        $response = [
+            'user' => $user,
+            'token' => $token
+        ];
+        return $this->okResponse("Login successful", $response);
     }
 }
