@@ -10,6 +10,7 @@ class AuthenticationController extends Controller
 {
     public function register(Request $request)
     {
+        dd('Hello');
        // dd("i ");
 //        $request->validate([
 //            'name' => 'required|string',
