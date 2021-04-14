@@ -8,7 +8,7 @@ use App\Models\User;
 
 class AuthenticationController extends Controller
 {
-    public function register(Request $request)
+    public function doctorRegister(Request $request)
     {
         dd('Hello');
        // dd("i ");
