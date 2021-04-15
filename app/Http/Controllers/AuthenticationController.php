@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use App\Http\Requests\Wallet\Bitcoin\RegisterRequest;
 
 class AuthenticationController extends Controller
 {
-    public function doctorRegister(Request $request)
+    public function doctorRegister(RegisterRequest $request)
     {
-        dd('Hello');
-       // dd("i ");
-//        $request->validate([
-//            'name' => 'required|string',
-//            'email' => 'required|string',
-//            'password' => 'required|string'
-//       ]);
-        //dd($request->all());
+        $response = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password)
+        ]);
+
+         return $this->okResponse("Registration successful", $response);
+    }
+
+    public function healthSeekerRegister(RegisterRequest $request)
+    {
+   
         $response = User::create([
             'name' => $request->name,
             'email' => $request->email,
